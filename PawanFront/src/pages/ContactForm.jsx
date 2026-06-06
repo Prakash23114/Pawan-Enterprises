@@ -3,7 +3,7 @@ import { Phone, Mail, MapPin, Calendar, MessageSquare, Upload, X, ImageIcon } fr
 
 export default function ContactForm() {
   const fileInputRef = useRef(null);
-  
+
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -48,7 +48,7 @@ export default function ContactForm() {
     try {
       // TRANSITION TO MULTIPART FORMDATA OBJECT FOR BINARY STREAM CAPACITIES
       const submissionPayload = new FormData();
-      
+
       // Append standard text strings
       submissionPayload.append('fullName', formData.fullName);
       submissionPayload.append('phone', formData.phone);
@@ -56,18 +56,16 @@ export default function ContactForm() {
       submissionPayload.append('serviceType', formData.serviceType);
       submissionPayload.append('address', formData.address);
       submissionPayload.append('notes', formData.notes);
-      
+
       // Append the selected leakage file if uploaded by user
       if (leakageImage) {
         submissionPayload.append('leakageImage', leakageImage);
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/request-inspection`,
+        `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
         {
           method: "POST",
-          // DO NOT explicitly pass headers context for Content-Type here; 
-          // the browser must set the automated boundary flags natively.
           body: submissionPayload
         }
       );
@@ -197,18 +195,18 @@ export default function ContactForm() {
                 {/* VISUAL IMAGE UPLOAD ELEMENT */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Upload Leakage Image (Optional)</label>
-                  
-                  <input 
-                    type="file" 
+
+                  <input
+                    type="file"
                     ref={fileInputRef}
-                    name="leakageImage" 
-                    accept="image/*" 
-                    onChange={handleFileChange} 
-                    className="hidden" 
+                    name="leakageImage"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
                   />
 
                   {!imagePreview ? (
-                    <div 
+                    <div
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full border-2 border-dashed border-slate-200 hover:border-blue-500 bg-slate-50/50 hover:bg-slate-50 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none group"
                     >
@@ -227,8 +225,8 @@ export default function ContactForm() {
                           <p className="text-[10px] text-slate-400 mt-0.5">{(leakageImage?.size / (1024 * 1024)).toFixed(2)} MB</p>
                         </div>
                       </div>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={removeSelectedImage}
                         className="p-1.5 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors"
                       >
