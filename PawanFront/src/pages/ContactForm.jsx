@@ -13,7 +13,7 @@ export default function ContactForm() {
     notes: ''
   });
 
-  // Track the raw file and its browser object URL preview
+  // Track the raw file binary and its dynamic object URL preview path string
   const [leakageImage, setLeakageImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [status, setStatus] = useState({ loading: false, success: null, message: '' });
@@ -22,11 +22,11 @@ export default function ContactForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Process the selected file buffer input safely
+  // Process the selected file buffer input safely with clear threshold checks
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB Limit rule check
+      if (file.size > 5 * 1024 * 1024) { // 5MB Limit restriction rule check
         setStatus({ loading: false, success: false, message: 'Image size must be smaller than 5MB.' });
         return;
       }
@@ -46,10 +46,10 @@ export default function ContactForm() {
     setStatus({ loading: true, success: null, message: "" });
 
     try {
-      // TRANSITION TO MULTIPART FORMDATA OBJECT FOR BINARY STREAM CAPACITIES
+      // TRANSITION TO MULTIPART FORMDATA OBJECT FOR BINARY STREAM CAPACITY ON CLOUD NETWORKS
       const submissionPayload = new FormData();
 
-      // Append standard text strings
+      // Append standard data input text strings
       submissionPayload.append('fullName', formData.fullName);
       submissionPayload.append('phone', formData.phone);
       submissionPayload.append('email', formData.email);
@@ -57,15 +57,18 @@ export default function ContactForm() {
       submissionPayload.append('address', formData.address);
       submissionPayload.append('notes', formData.notes);
 
-      // Append the selected leakage file if uploaded by user
+      // Append the selected leakage file binary if uploaded by user
       if (leakageImage) {
         submissionPayload.append('leakageImage', leakageImage);
       }
 
       const response = await fetch(
+        // Fallback target pointing straight to your verified, live Render service URL endpoint
         `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
         {
           method: "POST",
+          // CRITICAL: Do NOT pass explicit JSON 'Content-Type' headers context configurations here! 
+          // The browser browser engine must automatically assign dynamic boundary flags natively.
           body: submissionPayload
         }
       );
@@ -86,7 +89,7 @@ export default function ContactForm() {
         message: "Your inspection request and leakage report have been uploaded successfully. Our team will contact you shortly."
       });
 
-      // Clear layout buffers
+      // Clear layout buffers back to baseline states
       setFormData({
         fullName: "",
         phone: "",
@@ -192,7 +195,7 @@ export default function ContactForm() {
                   <input type="text" required name="address" value={formData.address} onChange={handleChange} placeholder="Building name or details" className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none" />
                 </div>
 
-                {/* VISUAL IMAGE UPLOAD ELEMENT */}
+                {/* VISUAL IMAGE UPLOAD ELEMENT LAYER */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Upload Leakage Image (Optional)</label>
 
@@ -250,6 +253,26 @@ export default function ContactForm() {
                 </button>
               </form>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER NEED WATERPROOFING SOLUTIONS ROW BANNER */}
+      <section className="bg-slate-950 text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.12),transparent_50%)]"></div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-3">Need Waterproofing Solutions?</h2>
+          <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mb-8 leading-relaxed">
+            Book your free layout inspection checking routine today. Defend your structural concrete framework safely before structural paint peels activate.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 max-w-sm mx-auto sm:max-w-full">
+            <a href="tel:+919987937463" className="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs uppercase tracking-widest transition-all text-center">
+              Call Office
+            </a>
+            <a href="https://wa.me/919987937463" target="_blank" rel="noreferrer" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-3 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center space-x-2 transition-all">
+              <MessageSquare className="w-4 h-4 fill-current" />
+              <span>WhatsApp Chat</span>
+            </a>
           </div>
         </div>
       </section>
