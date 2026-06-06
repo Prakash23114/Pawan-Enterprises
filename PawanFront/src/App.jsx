@@ -12,7 +12,7 @@ import Projects from './pages/Projects';
 import Workflow from './pages/Workflow';
 import ContactForm from './pages/ContactForm';
 
-// Re-import the icons needed for the unified footer layout
+
 import { Shield, Phone, MapPin } from 'lucide-react';
 
 export default function App() {
