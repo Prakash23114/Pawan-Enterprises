@@ -5,21 +5,12 @@ import { validateContactInput } from '../middleware/validator.js';
 
 const router = express.Router();
 
-// Configure local disk storage for temporary uploads
-const storageConfig = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Make sure to create an "uploads" folder in your backend root directory
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
-  }
-});
+// CHANGE: Initialize Multer with memory storage instead of disk storage configuration
+const storageConfig = multer.memoryStorage();
 
-// Configure upload limits and file filters
 const upload = multer({
   storage: storageConfig,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit matching frontend restriction
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit rule
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -29,7 +20,6 @@ const upload = multer({
   }
 });
 
-// Pass the upload.single middleware using the frontend field name key 'leakageImage'
 router.post(
   '/request-inspection', 
   upload.single('leakageImage'), 
