@@ -1,5 +1,5 @@
 
-import heroVideo from '../assets/Video Project.mp4';
+import heroVideo from '../assets/videos/Video Project.mp4';
 
 export default function Hero({ scrollToSection }) {
   const stats = [

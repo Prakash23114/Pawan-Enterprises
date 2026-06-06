@@ -1,0 +1,12 @@
+# Frontend
+PawanFront/node_modules/
+PawanFront/dist/
+PawanFront/.env
+
+# Backend
+backend/node_modules/
+backend/.env
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
