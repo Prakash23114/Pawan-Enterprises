@@ -1,9 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { Phone, Mail, MapPin, Calendar, MessageSquare, Upload, X, ImageIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, Mail, MapPin, MessageSquare, Shield } from 'lucide-react';
 
 export default function ContactForm() {
-  const fileInputRef = useRef(null);
-
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -13,89 +11,33 @@ export default function ContactForm() {
     notes: ''
   });
 
-  // Track the raw file binary and its dynamic object URL preview path string
-  const [leakageImage, setLeakageImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
   const [status, setStatus] = useState({ loading: false, success: null, message: '' });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Process the selected file buffer input safely with clear threshold checks
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB Limit restriction rule check
-        setStatus({ loading: false, success: false, message: 'Image size must be smaller than 5MB.' });
-        return;
-      }
-      setLeakageImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeSelectedImage = () => {
-    setLeakageImage(null);
-    setImagePreview('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setStatus({ loading: true, success: null, message: "" });
 
-    // 1. Check for the administrative token before proceeding
-    const token = localStorage.getItem('pawan_admin_token');
-    if (!token) {
-      setStatus({
-        loading: false,
-        success: false,
-        message: "Access Denied: You must be logged in to submit an inspection request."
-      });
-      return;
-    }
-
     try {
-      const submissionPayload = new FormData();
-
-      submissionPayload.append('fullName', formData.fullName);
-      submissionPayload.append('phone', formData.phone);
-      submissionPayload.append('email', formData.email);
-      submissionPayload.append('serviceType', formData.serviceType);
-      submissionPayload.append('address', formData.address);
-      submissionPayload.append('notes', formData.notes);
-
-      if (leakageImage) {
-        submissionPayload.append('leakageImage', leakageImage);
-      }
-
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
+        `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/contact`,
         {
           method: "POST",
-          headers: {
-            // 2. Attach the JWT securely using standard Bearer formatting
-            'Authorization': `Bearer ${token}`
-          },
-          body: submissionPayload
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
         }
       );
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-          data.errors?.map(err => err.msg).join(", ") ||
-          "Failed to submit inspection request."
-        );
-      }
+      if (!response.ok) throw new Error(data.message || "Failed to submit request.");
 
       setStatus({
         loading: false,
         success: true,
-        message: "Your inspection request and leakage report have been uploaded successfully. Our team will contact you shortly."
+        message: "Your inspection request has been submitted successfully! We will contact you shortly."
       });
 
       setFormData({
@@ -106,13 +48,12 @@ export default function ContactForm() {
         address: "",
         notes: ""
       });
-      removeSelectedImage();
 
     } catch (error) {
-      setStatus({
-        loading: false,
-        success: false,
-        message: error.message || "Unable to submit your request. Please try again later."
+      setStatus({ 
+        loading: false, 
+        success: false, 
+        message: error.message || "Something went wrong. Please try again." 
       });
     }
   };
@@ -122,8 +63,6 @@ export default function ContactForm() {
       <section id="contact" className="py-16 lg:py-28 bg-white border-t border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-
-            {/* Information Side Block */}
             <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
               <div>
                 <div className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider mb-2">On-Site Evaluation</div>
@@ -160,10 +99,9 @@ export default function ContactForm() {
               </div>
             </div>
 
-            {/* Interactive Form Display Interface */}
-            <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-xl shadow-slate-100/30">
               <form onSubmit={handleFormSubmit} className="space-y-4">
-
+                
                 {status.message && (
                   <div className={`p-4 rounded-xl text-sm font-medium border ${status.success ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-red-50 border-red-200 text-red-800"}`}>
                     {status.message}
@@ -184,7 +122,7 @@ export default function ContactForm() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Email Address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@domain.com" className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none" />
+                    <input type="email" required name="email" value={formData.email} onChange={handleChange} placeholder="name@domain.com" className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Service Type</label>
@@ -203,60 +141,12 @@ export default function ContactForm() {
                   <input type="text" required name="address" value={formData.address} onChange={handleChange} placeholder="Building name or details" className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none" />
                 </div>
 
-                {/* VISUAL IMAGE UPLOAD ELEMENT LAYER */}
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Upload Leakage Image (Optional)</label>
-
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    name="leakageImage"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-
-                  {!imagePreview ? (
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-slate-200 hover:border-blue-500 bg-slate-50/50 hover:bg-slate-50 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none group"
-                    >
-                      <Upload className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2 transition-colors" />
-                      <span className="text-xs font-bold text-slate-700">Click to upload photo</span>
-                      <span className="text-[10px] text-slate-400 mt-1">JPEG, PNG up to 5MB</span>
-                    </div>
-                  ) : (
-                    <div className="relative border border-slate-200 bg-slate-50 rounded-xl p-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-3 overflow-hidden">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden border border-slate-200 bg-white flex-shrink-0">
-                          <img src={imagePreview} alt="Leakage sample preview" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-xs font-bold text-slate-800 truncate">{leakageImage?.name}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{(leakageImage?.size / (1024 * 1024)).toFixed(2)} MB</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={removeSelectedImage}
-                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Notes / Scope Details</label>
                   <textarea rows="3" name="notes" value={formData.notes} onChange={handleChange} placeholder="Outline damp spots or active leakage pathways..." className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none resize-none"></textarea>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={status.loading}
-                  className={`w-full font-bold py-3.5 rounded-xl transition-all duration-300 ${status.loading ? "bg-slate-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"} text-white`}
-                >
+                <button type="submit" disabled={status.loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold uppercase tracking-widest py-3.5 rounded-xl text-xs shadow-sm transition-all disabled:bg-slate-300">
                   {status.loading ? "Submitting Request..." : "Submit Inspection Request"}
                 </button>
               </form>
@@ -265,7 +155,6 @@ export default function ContactForm() {
         </div>
       </section>
 
-      {/* FOOTER NEED WATERPROOFING SOLUTIONS ROW BANNER */}
       <section className="bg-slate-950 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.12),transparent_50%)]"></div>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -284,6 +173,53 @@ export default function ContactForm() {
           </div>
         </div>
       </section>
+
+      <footer className="bg-slate-900 text-slate-400 pt-12 pb-10 border-t border-slate-800 text-xs relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2.5 cursor-pointer">
+                <div className="bg-blue-600 p-1.5 rounded-xl text-white"><Shield className="w-4 h-4" /></div>
+                <span className="text-white font-black text-sm tracking-wider uppercase">Pawan Enterprises</span>
+              </div>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Authorized applicator associates of Pidilite and Dr. Fixit chemical lines registered formally under corporate title Pawan Enterprises.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Quick Navigation</h4>
+              <ul className="grid grid-cols-2 gap-2 text-[11px]">
+                {['Services', 'About', 'Projects', 'Contact'].map((l) => (
+                  <li key={l}>
+                    <span className="text-slate-400 font-medium select-none">{l} Index</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Contact Desk</h4>
+              <ul className="space-y-2.5 text-[11px] text-slate-400">
+                <li className="flex items-center space-x-2"><Phone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /><span className="text-slate-300 font-bold">+91 998 793 7463</span></li>
+                <li className="flex items-start space-x-2"><MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" /><span className="leading-relaxed">Sai Satyam Residency, Khadakpada, Kalyan West, MH</span></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Our Location Map</h4>
+              <div className="w-full h-28 rounded-xl overflow-hidden border border-slate-800 shadow-md">
+                <iframe title="Pawan Enterprises Office Map" src="https://maps.google.com/maps?q=19.2620407,73.1244955&z=18&output=embed" className="w-full h-full border-0 filter grayscale invert opacity-75 contrast-110" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
+            <p>© {new Date().getFullYear()} Pawan Enterprises. All rights reserved.</p>
+            <p className="uppercase tracking-widest font-bold text-slate-600 text-[9px]">Premium Structural Protection</p>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }
