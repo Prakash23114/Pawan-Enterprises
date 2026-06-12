@@ -159,8 +159,8 @@ This platform serves as the official digital presence of Pawan Enterprises, allo
 
 ### Deployment
 
-* Vercel / Netlify (Frontend)
-* Render / Railway / VPS (Backend)
+* Vercel 
+* Render
 
 ---
 
