@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Phone, Mail, MapPin, MessageSquare, Upload, X, Shield } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageSquare, Upload, X } from 'lucide-react';
 
 export default function ContactForm() {
   const fileInputRef = useRef(null);
@@ -24,7 +24,7 @@ export default function ContactForm() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // Strict 5MB file size constraint limit check
+      if (file.size > 5 * 1024 * 1024) { 
         setStatus({ loading: false, success: false, message: 'Image size must be smaller than 5MB.' });
         return;
       }
@@ -44,7 +44,6 @@ export default function ContactForm() {
     setStatus({ loading: true, success: null, message: "" });
 
     try {
-      // Create multi-part Form Data payload block to transfer both text fields and binary file streams safely
       const submissionPayload = new FormData();
       submissionPayload.append('fullName', formData.fullName);
       submissionPayload.append('phone', formData.phone);
@@ -57,12 +56,11 @@ export default function ContactForm() {
         submissionPayload.append('leakageImage', leakageImage);
       }
 
-      // Targets the precise active route listener deployed on your backend server
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
         {
           method: "POST",
-          body: submissionPayload // Send as multi-part form data instead of regular JSON
+          body: submissionPayload 
         }
       );
 
@@ -75,7 +73,6 @@ export default function ContactForm() {
         message: "Your inspection request has been submitted successfully! We will contact you shortly."
       });
 
-      // Clear layout elements completely upon successful completion
       setFormData({
         fullName: "",
         phone: "",
@@ -92,14 +89,6 @@ export default function ContactForm() {
         success: false, 
         message: error.message || "Something went wrong. Please try again." 
       });
-    }
-  };
-
-  // Helper scroll anchor targeting function
-  const localScrollTo = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -189,7 +178,7 @@ export default function ContactForm() {
                   <input type="text" required name="address" value={formData.address} onChange={handleChange} placeholder="Building name or details" className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none" />
                 </div>
 
-                {/* ─── RESTORED LEAKAGE PHOTO IMAGES UPLOAD INPUT ─── */}
+                {/* Leakage Image File Picker Block */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Upload Leakage Image (Optional)</label>
                   <input type="file" ref={fileInputRef} name="leakageImage" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -220,7 +209,7 @@ export default function ContactForm() {
                   <textarea rows="3" name="notes" value={formData.notes} onChange={handleChange} placeholder="Outline damp spots or active leakage pathways..." className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 transition-all focus:outline-none resize-none"></textarea>
                 </div>
 
-                {/* Black square submit button design layout */}
+                {/* Bold square submit button layout */}
                 <div className="flex justify-start pt-2">
                   <button 
                     type="submit" 
@@ -247,7 +236,7 @@ export default function ContactForm() {
         </div>
       </section>
 
-      {/* Action Banner */}
+      {/* Call to Action Accent Section */}
       <section className="bg-slate-950 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.12),transparent_50%)]"></div>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -266,53 +255,6 @@ export default function ContactForm() {
           </div>
         </div>
       </section>
-
-      {/* ─── FIXED GLOBAL FOOTER LAYER (Array Mapping Replaced with Stable Links) ─── */}
-      <footer className="bg-slate-900 text-slate-400 pt-12 pb-10 border-t border-slate-800 text-xs relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <div className="bg-blue-600 p-1.5 rounded-xl text-white"><Shield className="w-4 h-4" /></div>
-                <span className="text-white font-black text-sm tracking-wider uppercase">Pawan Enterprises</span>
-              </div>
-              <p className="text-slate-400 leading-relaxed text-[11px]">
-                Authorized applicator associates of Pidilite and Dr. Fixit chemical lines registered formally under corporate title Pawan Enterprises.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Quick Navigation</h4>
-              <ul className="grid grid-cols-2 gap-2 text-[11px]">
-                <li><button type="button" onClick={() => localScrollTo('hero')} className="hover:text-white transition-colors text-left focus:outline-none">Home Index</button></li>
-                <li><button type="button" onClick={() => localScrollTo('services')} className="hover:text-white transition-colors text-left focus:outline-none">Services Index</button></li>
-                <li><button type="button" onClick={() => localScrollTo('about')} className="hover:text-white transition-colors text-left focus:outline-none">About Index</button></li>
-                <li><button type="button" onClick={() => localScrollTo('projects')} className="hover:text-white transition-colors text-left focus:outline-none">Projects Index</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Contact Desk</h4>
-              <ul className="space-y-2.5 text-[11px] text-slate-400">
-                <li className="flex items-center space-x-2"><Phone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /><span className="text-slate-300 font-bold">+91 998 793 7463</span></li>
-                <li className="flex items-start space-x-2"><MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" /><span className="leading-relaxed">Sai Satyam Residency, Khadakpada, Kalyan West, MH</span></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-3">Our Location Map</h4>
-              <div className="w-full h-28 rounded-xl overflow-hidden border border-slate-800 shadow-md">
-                <iframe title="Pawan Enterprises Office Map" src="https://maps.google.com/maps?q=19.2620407,73.1244955&z=18&output=embed" className="w-full h-full border-0 filter grayscale invert opacity-75 contrast-110" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
-            <p>© {new Date().getFullYear()} Pawan Enterprises. All rights reserved.</p>
-            <p className="uppercase tracking-widest font-bold text-slate-600 text-[9px]">Premium Structural Protection</p>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }
