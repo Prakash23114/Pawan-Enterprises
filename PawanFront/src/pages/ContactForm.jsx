@@ -22,9 +22,9 @@ export default function ContactForm() {
     setStatus({ loading: true, success: null, message: "" });
 
     try {
-      // Grounded strictly in your backend router setup path structure
+      // FIX: Changed endpoint to match your backend router route precisely
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/contact`,
+        `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -64,6 +64,8 @@ export default function ContactForm() {
       <section id="contact" className="py-16 lg:py-28 bg-white border-t border-slate-200 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            
+            {/* Information Block */}
             <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
               <div>
                 <div className="inline-flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider mb-2">On-Site Evaluation</div>
@@ -100,6 +102,7 @@ export default function ContactForm() {
               </div>
             </div>
 
+            {/* Input Form Fields */}
             <div className="lg:col-span-7 bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-xl shadow-slate-100/30">
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 
@@ -152,7 +155,7 @@ export default function ContactForm() {
                   <button 
                     type="submit" 
                     disabled={status.loading} 
-                    className="bg-black hover:bg-zinc-900 text-white font-normal text-sm py-3 px-6 rounded-none tracking-normal transition-all duration-150 flex items-center justify-center min-w-[140px]"
+                    className="bg-black hover:bg-zinc-900 text-white font-normal text-sm py-2.5 px-6 rounded-none tracking-normal transition-all duration-150 flex items-center justify-center min-w-[120px]"
                   >
                     {status.loading ? (
                       <>
@@ -174,6 +177,7 @@ export default function ContactForm() {
         </div>
       </section>
 
+      {/* Call to Action banner */}
       <section className="bg-slate-950 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.12),transparent_50%)]"></div>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -193,6 +197,7 @@ export default function ContactForm() {
         </div>
       </section>
 
+      {/* Footer Layout */}
       <footer className="bg-slate-900 text-slate-400 pt-12 pb-10 border-t border-slate-800 text-xs relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
