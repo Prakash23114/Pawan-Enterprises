@@ -45,11 +45,20 @@ export default function ContactForm() {
     e.preventDefault();
     setStatus({ loading: true, success: null, message: "" });
 
+    // 1. Check for the administrative token before proceeding
+    const token = localStorage.getItem('pawan_admin_token');
+    if (!token) {
+      setStatus({
+        loading: false,
+        success: false,
+        message: "Access Denied: You must be logged in to submit an inspection request."
+      });
+      return;
+    }
+
     try {
-      // TRANSITION TO MULTIPART FORMDATA OBJECT FOR BINARY STREAM CAPACITY ON CLOUD NETWORKS
       const submissionPayload = new FormData();
 
-      // Append standard data input text strings
       submissionPayload.append('fullName', formData.fullName);
       submissionPayload.append('phone', formData.phone);
       submissionPayload.append('email', formData.email);
@@ -57,18 +66,18 @@ export default function ContactForm() {
       submissionPayload.append('address', formData.address);
       submissionPayload.append('notes', formData.notes);
 
-      // Append the selected leakage file binary if uploaded by user
       if (leakageImage) {
         submissionPayload.append('leakageImage', leakageImage);
       }
 
       const response = await fetch(
-        // Fallback target pointing straight to your verified, live Render service URL endpoint
         `${import.meta.env.VITE_API_URL || "https://pawan-enterprises.onrender.com"}/api/request-inspection`,
         {
           method: "POST",
-          // CRITICAL: Do NOT pass explicit JSON 'Content-Type' headers context configurations here! 
-          // The browser browser engine must automatically assign dynamic boundary flags natively.
+          headers: {
+            // 2. Attach the JWT securely using standard Bearer formatting
+            'Authorization': `Bearer ${token}`
+          },
           body: submissionPayload
         }
       );
@@ -89,7 +98,6 @@ export default function ContactForm() {
         message: "Your inspection request and leakage report have been uploaded successfully. Our team will contact you shortly."
       });
 
-      // Clear layout buffers back to baseline states
       setFormData({
         fullName: "",
         phone: "",

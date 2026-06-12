@@ -11,27 +11,42 @@ import WhyChooseUs from './pages/WhyChooseUs';
 import Projects from './pages/Projects';
 import Workflow from './pages/Workflow';
 import ContactForm from './pages/ContactForm';
+import Login from './pages/Login'; // 1. Import new login page module
 
-
-import { Shield, Phone, MapPin } from 'lucide-react';
+import { Shield, Phone, MapPin, LogOut } from 'lucide-react';
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [activeMobileTab, setActiveMobileTab] = useState('home');
+  
+  // 2. Setup auth state monitoring based on local cache validation tokens
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const servicesScrollRef = useRef(null);
   const projectsScrollRef = useRef(null);
   const stepsScrollRef = useRef(null);
 
   useEffect(() => {
+    // Check if token exists on app mount initialization
+    const token = localStorage.getItem('pawan_admin_token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 300);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('pawan_admin_token');
+    setIsAuthenticated(false);
+    setActiveMobileTab('home');
+  };
 
   const scrollToSection = (id) => {
     setIsMenuOpen(false);
@@ -42,80 +57,62 @@ export default function App() {
     }
   };
 
-  const handleSideScroll = (ref, direction) => {
-    if (ref.current) {
-      const offset = direction === 'left' ? -340 : 340;
-      ref.current.scrollBy({ left: offset, behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1e293b] font-sans antialiased selection:bg-blue-600 selection:text-white pb-20 md:pb-0">
-      <Navbar scrollToSection={scrollToSection} />
-      <MobileHeader />
-      
-      <main>
-        <Hero scrollToSection={scrollToSection} />
-        <Services 
-          scrollRef={servicesScrollRef} 
-          handleSideScroll={handleSideScroll} 
-          scrollToSection={scrollToSection} 
-        />
-        <About />
-        <WhyChooseUs />
-        <Projects 
-          scrollRef={projectsScrollRef} 
-          handleSideScroll={handleSideScroll} 
-          scrollToSection={scrollToSection} 
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
-        <Workflow 
-          scrollRef={stepsScrollRef} 
-          handleSideScroll={handleSideScroll} 
-        />
-        <ContactForm />
-      </main>
+    <div className="min-h-screen bg-slate-50 antialiased selection:bg-blue-600 selection:text-white">
+      <Navbar 
+        isMenuOpen={isMenuOpen} 
+        setIsMenuOpen={setIsMenuOpen} 
+        scrollToSection={scrollToSection} 
+      />
+      <MobileHeader isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
 
-      {/* FIXED GLOBAL FOOTER LAYER */}
-      <footer className="bg-slate-900 text-slate-400 pt-12 pb-10 border-t border-slate-800 text-xs relative z-20">
+      {/* 3. CONDITIONAL ROUTING HOOK: Render login if not authenticated */}
+      {!isAuthenticated ? (
+        <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+      ) : (
+        <main>
+          <Hero scrollToSection={scrollToSection} />
+          <Services scrollRef={servicesScrollRef} activeTab={activeTab} setActiveTab={setActiveTab} />
+          <About />
+          <WhyChooseUs />
+          <Projects scrollRef={projectsScrollRef} />
+          <Workflow scrollRef={stepsScrollRef} />
+          <ContactForm />
+        </main>
+      )}
+
+      <footer className="bg-slate-950 text-slate-400 pt-16 pb-24 lg:pb-12 border-t border-slate-900 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
-            
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <div className="bg-blue-600 p-1.5 rounded-xl text-white">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <span className="text-white font-black text-sm tracking-wider uppercase">Pawan Enterprises</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-12 border-b border-slate-900">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-white">
+                <Shield className="w-5 h-5 text-blue-500 fill-blue-500/10" />
+                <span className="font-black text-sm uppercase tracking-wider">Pawan Enterprises</span>
               </div>
-              <p className="text-slate-400 leading-relaxed text-[11px]">
-                Authorized applicator associates of Pidilite and Dr. Fixit chemical lines registered formally under corporate title Pawan Enterprises.
+              <p className="text-xs leading-relaxed text-slate-500">
+                Authorized applicators delivering precision engineering waterproofing coatings and comprehensive structural rehabilitation treatments live.
               </p>
+              {/* Add Logout Utility trigger when logged into system context */}
+              {isAuthenticated && (
+                <button 
+                  onClick={handleLogout}
+                  className="inline-flex items-center space-x-1.5 text-xs font-bold text-red-500 hover:text-red-400 transition-colors pt-2 uppercase tracking-wider"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Exit Session</span>
+                </button>
+              )}
             </div>
 
             <div>
-              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Quick Navigation</h4>
-              <ul className="grid grid-cols-2 gap-2 text-[11px]">
-                {['Services', 'About', 'Projects', 'Contact'].map((l) => (
-                  <li key={l}>
-                    <button onClick={() => scrollToSection(l.toLowerCase())} className="hover:text-white transition-colors text-left">
-                      {l} Index
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Contact Desk</h4>
-              <ul className="space-y-2.5 text-[11px] text-slate-400">
+              <h4 className="text-white font-bold text-xs uppercase tracking-wider mb-4">Contact Gateway</h4>
+              <ul className="space-y-2.5 text-xs">
                 <li className="flex items-center space-x-2">
-                  <Phone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-slate-600" />
                   <span className="text-slate-300 font-bold">+91 998 793 7463</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <MapPin className="w-3.5 h-3.5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <MapPin className="w-3.5 h-3.5 text-slate-600 mt-0.5 flex-shrink-0" />
                   <span className="leading-relaxed">Sai Satyam Residency, Khadakpada, Kalyan West, MH</span>
                 </li>
               </ul>
@@ -143,8 +140,12 @@ export default function App() {
         </div>
       </footer>
 
-      <FloatingHotspots showBackToTop={showBackToTop} scrollToSection={scrollToSection} />
-      <BottomNav activeMobileTab={activeMobileTab} scrollToSection={scrollToSection} />
+      {isAuthenticated && (
+        <>
+          <FloatingHotspots showBackToTop={showBackToTop} scrollToSection={scrollToSection} />
+          <BottomNav activeMobileTab={activeMobileTab} scrollToSection={scrollToSection} />
+        </>
+      )}
     </div>
   );
 }
